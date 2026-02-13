@@ -560,6 +560,8 @@ docker run --rm ai-eagle --help
 
 ## Quick Start
 
+<img width="1886" height="187" alt="image" src="https://github.com/user-attachments/assets/cea9efff-8577-4e60-9e2c-a9e22cbe46c7" />
+
 ```bash
 # Scan a Git repository
 ai-eagle git --repo https://github.com/example/test-keys.git
