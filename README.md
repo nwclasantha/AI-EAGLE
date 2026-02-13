@@ -12,6 +12,8 @@ AI-EAGLE is a high-performance secret scanner that combines 887 rule-based detec
 
 ## Table of Contents
 
+<img width="1335" height="723" alt="image" src="https://github.com/user-attachments/assets/41e47001-fa17-457f-8ed4-ef4408d6faa9" />
+
 - [Features](#features)
 - [Architecture](#architecture)
 - [Data Flow](#data-flow)
@@ -80,6 +82,8 @@ https://github.com/user-attachments/assets/b5d1f05f-6716-4dcf-a504-f1310214ab18
 
 ### Component Overview
 
+<img width="1343" height="721" alt="image" src="https://github.com/user-attachments/assets/e277e3bb-28fb-4378-899a-2e5667c824f0" />
+
 | Component | Location | Purpose |
 |-----------|----------|---------|
 | **CLI** | `ai_eagle/cli.py` | Click-based command interface with 15 subcommands |
@@ -99,6 +103,8 @@ https://github.com/user-attachments/assets/b5d1f05f-6716-4dcf-a504-f1310214ab18
 ### 4-Stage Threaded Engine Pipeline
 
 The engine uses a producer-consumer pipeline with `queue.Queue` channels and `WaitGroup` barriers (ported from Go's `sync.WaitGroup`). Each stage runs as a pool of daemon threads:
+
+<img width="1326" height="710" alt="image" src="https://github.com/user-attachments/assets/bac194ec-76c7-470c-a3b9-dfb44745ac0f" />
 
 ```
  ============================================================================
@@ -138,6 +144,9 @@ The engine uses a producer-consumer pipeline with `queue.Queue` channels and `Wa
 ```
 
 **Stage 1: Scanner Workers** (`1 x concurrency` threads)
+
+<img width="1337" height="717" alt="image" src="https://github.com/user-attachments/assets/bf0ecc4b-57c6-4609-9ccb-8fb919e6886d" />
+
 - Pull raw `Chunk` objects from `SourceManager`'s thread-safe queue
 - Run each chunk through the **decoder chain** (UTF-8 → UTF-16 → Base64 → Escaped Unicode)
 - Each successful decode produces a `DecodableChunk` with `decoder_type` tag
@@ -158,6 +167,9 @@ The engine uses a producer-consumer pipeline with `queue.Queue` channels and `Wa
 - Per-detector timeout: `_DETECTION_TIMEOUT` (default 60s)
 
 **Stage 3: Verification Overlap Workers** (`1 x concurrency` threads, optional)
+
+<img width="1325" height="726" alt="image" src="https://github.com/user-attachments/assets/b2012a07-47e2-4d06-8764-6938f72c851a" />
+
 - Enabled with `--allow-verification-overlap`
 - Receives chunks where multiple detectors matched the same secret
 - Re-verifies results across detector boundaries using all matched detectors
@@ -316,6 +328,8 @@ Key methods:
 ## Data Flow
 
 ### Complete Pipeline Visualization
+
+<img width="1323" height="710" alt="image" src="https://github.com/user-attachments/assets/34df1897-4145-4e5f-b05e-c3e839f64c4c" />
 
 ```
 Source Scan Request (CLI command)
