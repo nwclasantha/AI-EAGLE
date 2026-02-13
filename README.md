@@ -2,6 +2,8 @@
 
 **AI-Powered Credential Detection & Secret Scanning Tool**
 
+<img width="2752" height="1488" alt="unnamed" src="https://github.com/user-attachments/assets/412eabfd-5329-4078-8db1-b215e314fe42" />
+
 AI-EAGLE is a high-performance secret scanner that combines 887 rule-based detectors with an adaptive ML ensemble to find leaked credentials, API keys, tokens, and other secrets across your code, repositories, cloud storage, and infrastructure. It features multi-signal confidence scoring, real-time verification, and enterprise reporting.
 
 > Python 3.11+ | 1,949 source files | 915 detectors | 264 tests passing | 98%+ precision, 95%+ recall
