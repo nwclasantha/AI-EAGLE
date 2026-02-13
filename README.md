@@ -48,6 +48,8 @@ AI-EAGLE is a high-performance secret scanner that combines 887 rule-based detec
 
 ## Architecture
 
+<img width="3617" height="6537" alt="NotebookLM Mind Map" src="https://github.com/user-attachments/assets/e2a47dd6-fb51-4bc7-ab0c-b22fcb538f63" />
+
 ### High-Level System Overview
 
 ```
