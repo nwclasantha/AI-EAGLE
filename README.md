@@ -641,10 +641,10 @@ docker run --rm -it -v C:/Users/you/Desktop/project:/scan nwclasantha/ai-eagle f
 # ── Git Repository ──
 docker run --rm -it ai-eagle git https://github.com/org/repo.git
 docker run --rm -it ai-eagle git https://github.com/org/repo.git --json --branch main
-docker run --rm -it ai-eagle git https://github.com/org/repo.git --json --results verified --fail
+docker run --rm  -it ai-eagle git https://github.com/org/repo.git --json --results verified --fail
 docker run --rm -it ai-eagle git https://github.com/org/repo.git --max-depth 100 --exclude-globs "*.min.js,vendor/*"
 docker run --rm -it ai-eagle git https://github.com/org/repo.git --sarif
-docker run --rm -it -v $(pwd)/reports:/reports ai-eagle git https://github.com/org/repo.git --html-report /reports/scan.html
+docker run --rm -itai-eagle git https://github.com/org/repo.git --html-report /reports/scan.html -v $(pwd)/reports:/reports
 
 # ── GitHub Organization/Repos ──
 docker run --rm -it -e GITHUB_TOKEN=ghp_YOUR_TOKEN ai-eagle github --org my-org
@@ -662,10 +662,18 @@ docker run --rm -it -e GITLAB_TOKEN=glpat-YOUR_TOKEN ai-eagle gitlab --repo http
 docker run --rm -it -e GITLAB_TOKEN=glpat-YOUR_TOKEN ai-eagle gitlab --group-id 42 --endpoint https://gitlab.mycompany.com
 
 # ── Filesystem ──
-docker run --rm -it -v /path/to/code:/scan ai-eagle filesystem /scan
-docker run --rm -it -v /path/to/code:/scan ai-eagle filesystem /scan --json --fail
-docker run --rm -it -v /path/to/code:/scan ai-eagle filesystem /scan --no-default-excludes
-docker run --rm -it -v /path/to/code:/scan -v $(pwd)/reports:/reports ai-eagle filesystem /scan --html-report /reports/report.html --excel-report /reports/findings.csv
+# Basic scan
+docker run --rm -it -v "C:/Users/nwcla/Desktop/SOC-Defense-System:/scan" nwclasantha/ai-eagle filesystem /scan
+
+# JSON output + CI fail exit code
+docker run --rm -it -v "C:/Users/nwcla/Desktop/SOC-Defense-System:/scan" nwclasantha/ai-eagle filesystem /scan --json --fail
+
+# Scan everything (no default excludes)
+docker run --rm -it -v "C:/Users/nwcla/Desktop/SOC-Defense-System:/scan" nwclasantha/ai-eagle filesystem /scan --no-default-excludes
+
+# HTML + Excel enterprise reports (saved to your Desktop)
+docker run --rm -it -v "C:/Users/nwcla/Desktop/SOC-Defense-System:/scan" -v "C:/Users/nwcla/Desktop/reports:/reports" nwclasantha/ai-eagle filesystem /scan --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
 
 # ── Amazon S3 ──
 docker run --rm -it -e AWS_ACCESS_KEY_ID=AKIA... -e AWS_SECRET_ACCESS_KEY=... ai-eagle s3 --bucket my-bucket
