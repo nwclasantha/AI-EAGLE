@@ -639,99 +639,108 @@ docker run --rm -it -v C:/Users/you/Desktop/project:/scan nwclasantha/ai-eagle f
 
 ```bash
 # ── Git Repository ──
-docker run --rm -it ai-eagle git https://github.com/org/repo.git
-docker run --rm -it ai-eagle git https://github.com/org/repo.git --json --branch main
-docker run --rm  -it ai-eagle git https://github.com/org/repo.git --json --results verified --fail
-docker run --rm -it ai-eagle git https://github.com/org/repo.git --max-depth 100 --exclude-globs "*.min.js,vendor/*"
-docker run --rm -it ai-eagle git https://github.com/org/repo.git --sarif
-docker run --rm -itai-eagle git https://github.com/org/repo.git --html-report /reports/scan.html -v $(pwd)/reports:/reports
+docker run --rm -it nwclasantha/ai-eagle git https://github.com/org/repo.git
+docker run --rm -it nwclasantha/ai-eagle git https://github.com/org/repo.git --json --branch main
+docker run --rm -it nwclasantha/ai-eagle git https://github.com/org/repo.git --json --results verified --fail
+docker run --rm -it nwclasantha/ai-eagle git https://github.com/org/repo.git --max-depth 100 --exclude-globs "*.min.js,vendor/*"
+docker run --rm -it nwclasantha/ai-eagle git https://github.com/org/repo.git --sarif
+docker run --rm -it -v "$(pwd)/reports:/reports" nwclasantha/ai-eagle git https://github.com/org/repo.git --html-report /reports/scan.html
 
 # ── GitHub Organization/Repos ──
-docker run --rm -it -e GITHUB_TOKEN=ghp_YOUR_TOKEN ai-eagle github --org my-org
-docker run --rm -it -e GITHUB_TOKEN=ghp_YOUR_TOKEN ai-eagle github --repo my-org/repo --json
-docker run --rm -it -e GITHUB_TOKEN=ghp_YOUR_TOKEN ai-eagle github --org my-org --include-forks --include-wikis --issue-comments --pr-comments
-docker run --rm -it -e GITHUB_TOKEN=ghp_YOUR_TOKEN ai-eagle github --org my-org --include-repos "backend-*" --exclude-repos "archived-*"
-docker run --rm -it -e GITHUB_TOKEN=ghp_YOUR_TOKEN ai-eagle github --org my-org --endpoint https://github.mycompany.com/api/v3
+docker run --rm -e GITHUB_TOKEN=ghp_YOUR_TOKEN nwclasantha/ai-eagle github --org my-org
+docker run --rm -e GITHUB_TOKEN=ghp_YOUR_TOKEN nwclasantha/ai-eagle github --repo my-org/repo --json
+docker run --rm -e GITHUB_TOKEN=ghp_YOUR_TOKEN nwclasantha/ai-eagle github --org my-org --include-forks --include-wikis --issue-comments --pr-comments
+docker run --rm -e GITHUB_TOKEN=ghp_YOUR_TOKEN nwclasantha/ai-eagle github --org my-org --include-repos "backend-*" --exclude-repos "archived-*"
+docker run --rm -e GITHUB_TOKEN=ghp_YOUR_TOKEN nwclasantha/ai-eagle github --org my-org --endpoint https://github.mycompany.com/api/v3
 
 # ── GitHub Experimental (Object Discovery) ──
-docker run --rm -it -e GITHUB_TOKEN=ghp_YOUR_TOKEN ai-eagle github-experimental --repo https://github.com/org/repo --token ghp_YOUR_TOKEN --object-discovery
+docker run --rm -e GITHUB_TOKEN=ghp_YOUR_TOKEN nwclasantha/ai-eagle github-experimental --repo https://github.com/org/repo --token ghp_YOUR_TOKEN --object-discovery
 
 # ── GitLab Group/Repos ──
-docker run --rm -it -e GITLAB_TOKEN=glpat-YOUR_TOKEN ai-eagle gitlab --group-id 12345
-docker run --rm -it -e GITLAB_TOKEN=glpat-YOUR_TOKEN ai-eagle gitlab --repo https://gitlab.com/org/repo --token glpat-YOUR_TOKEN
-docker run --rm -it -e GITLAB_TOKEN=glpat-YOUR_TOKEN ai-eagle gitlab --group-id 42 --endpoint https://gitlab.mycompany.com
+docker run --rm -e GITLAB_TOKEN=glpat-YOUR_TOKEN nwclasantha/ai-eagle gitlab --group-id 12345
+docker run --rm -e GITLAB_TOKEN=glpat-YOUR_TOKEN nwclasantha/ai-eagle gitlab --repo https://gitlab.com/org/repo --token glpat-YOUR_TOKEN
+docker run --rm -e GITLAB_TOKEN=glpat-YOUR_TOKEN nwclasantha/ai-eagle gitlab --group-id 42 --endpoint https://gitlab.mycompany.com
 
 # ── Filesystem ──
-# Basic scan
-docker run --rm -it -v "C:/Users/nwcla/Desktop/SOC-Defense-System:/scan" nwclasantha/ai-eagle filesystem /scan
+# Linux / macOS
+docker run --rm -it -v /path/to/code:/scan nwclasantha/ai-eagle filesystem /scan
+docker run --rm -it -v /path/to/code:/scan nwclasantha/ai-eagle filesystem /scan --json --fail
+docker run --rm -it -v /path/to/code:/scan nwclasantha/ai-eagle filesystem /scan --no-default-excludes
 
-# JSON output + CI fail exit code
-docker run --rm -it -v "C:/Users/nwcla/Desktop/SOC-Defense-System:/scan" nwclasantha/ai-eagle filesystem /scan --json --fail
+docker run --rm -it -v "C:/Users/nwcla/Desktop/SOC-Defense-System:/scan" -v "C:/Users/nwcla/Desktop/reports:/reports" nwclasantha/ai-eagle filesystem /scan --html-report /reports/soc-defense-report.html --excel-report /reports/soc-defense-findings.xlsx
 
-# Scan everything (no default excludes)
-docker run --rm -it -v "C:/Users/nwcla/Desktop/SOC-Defense-System:/scan" nwclasantha/ai-eagle filesystem /scan --no-default-excludes
+# Windows (PowerShell / CMD)
+docker run --rm -it -v "C:/Users/you/Desktop/project:/scan" -v "C:/Users/you/Desktop/reports:/reports" nwclasantha/ai-eagle filesystem /scan --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
-# HTML + Excel enterprise reports (saved to your Desktop)
-docker run --rm -it -v "C:/Users/nwcla/Desktop/SOC-Defense-System:/scan" -v "C:/Users/nwcla/Desktop/reports:/reports" nwclasantha/ai-eagle filesystem /scan --html-report /reports/report.html --excel-report /reports/findings.xlsx
-
+# Windows (Git Bash) — use // prefix for container paths
+docker run --rm -it -v "C:/Users/you/Desktop/project:/scan" -v "C:/Users/you/Desktop/reports://reports" nwclasantha/ai-eagle filesystem //scan --html-report //reports/report.html --excel-report //reports/findings.xlsx
 
 # ── Amazon S3 ──
-docker run --rm -it -e AWS_ACCESS_KEY_ID=AKIA... -e AWS_SECRET_ACCESS_KEY=... ai-eagle s3 --bucket my-bucket
-docker run --rm -it -e AWS_ACCESS_KEY_ID=AKIA... -e AWS_SECRET_ACCESS_KEY=... ai-eagle s3 --bucket prod-configs --bucket staging-configs --ignore-bucket logs-bucket
-docker run --rm -it -e AWS_ACCESS_KEY_ID=AKIA... -e AWS_SECRET_ACCESS_KEY=... -e AWS_SESSION_TOKEN=... ai-eagle s3 --bucket my-bucket --max-object-size 50MB
+docker run --rm -e AWS_ACCESS_KEY_ID=AKIA... -e AWS_SECRET_ACCESS_KEY=... nwclasantha/ai-eagle s3 --bucket my-bucket
+docker run --rm -e AWS_ACCESS_KEY_ID=AKIA... -e AWS_SECRET_ACCESS_KEY=... nwclasantha/ai-eagle s3 --bucket prod-configs --bucket staging-configs --ignore-bucket logs-bucket
+docker run --rm -e AWS_ACCESS_KEY_ID=AKIA... -e AWS_SECRET_ACCESS_KEY=... -e AWS_SESSION_TOKEN=... nwclasantha/ai-eagle s3 --bucket my-bucket --max-object-size 50MB
 
 # ── Google Cloud Storage ──
-docker run --rm -it -v /path/to/sa.json:/creds/sa.json -e GOOGLE_APPLICATION_CREDENTIALS=/creds/sa.json ai-eagle gcs --project-id my-project --include-buckets my-bucket
-docker run --rm -it -e GOOGLE_API_KEY=AIza... ai-eagle gcs --project-id my-project --include-buckets my-bucket
-docker run --rm -it ai-eagle gcs --project-id my-project --without-auth --include-buckets public-bucket
+docker run --rm -it -v /path/to/sa.json:/creds/sa.json -e GOOGLE_APPLICATION_CREDENTIALS=/creds/sa.json nwclasantha/ai-eagle gcs --project-id my-project --include-buckets my-bucket
+docker run --rm -e GOOGLE_API_KEY=AIza... nwclasantha/ai-eagle gcs --project-id my-project --include-buckets my-bucket
+docker run --rm -it nwclasantha/ai-eagle gcs --project-id my-project --without-auth --include-buckets public-bucket
 
 # ── Docker Image Layers ──
-docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock ai-eagle docker --image my-app:latest
-docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock ai-eagle docker --image my-app:latest --image my-api:v2
-docker run --rm -it ai-eagle docker --image registry.example.com/app:latest --token YOUR_TOKEN
+# Linux / macOS
+docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock nwclasantha/ai-eagle docker --image my-app:latest
+docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock nwclasantha/ai-eagle docker --image my-app:latest --image my-api:v2
+
+# Windows (Docker Desktop) — requires --user root for socket access
+docker run --rm --user root -v //var/run/docker.sock://var/run/docker.sock nwclasantha/ai-eagle docker --image my-app:latest
+
+# With reports (Windows Git Bash)
+docker run --rm --user root -v //var/run/docker.sock://var/run/docker.sock -v "C:/Users/you/Desktop/reports://reports" nwclasantha/ai-eagle docker --image my-app:latest --html-report //reports/docker-report.html --excel-report //reports/docker-findings.xlsx
+
+# Remote registry (no socket needed)
+docker run --rm -it nwclasantha/ai-eagle docker --image registry.example.com/app:latest --token YOUR_TOKEN
 
 # ── Elasticsearch ──
-docker run --rm -it --network host ai-eagle elasticsearch --nodes http://localhost:9200 --index-pattern "logs-*"
-docker run --rm -it ai-eagle elasticsearch --nodes http://elasticsearch:9200 --username elastic --password changeme --index-pattern "app-*"
-docker run --rm -it ai-eagle elasticsearch --cloud-id my-deployment:dXMtY2... --api-key base64key
-docker run --rm -it ai-eagle elasticsearch --nodes http://elasticsearch:9200 --since-timestamp "2024-01-01T00:00:00Z"
+docker run --rm --network host nwclasantha/ai-eagle elasticsearch --nodes http://localhost:9200 --index-pattern "logs-*"
+docker run --rm -it nwclasantha/ai-eagle elasticsearch --nodes http://elasticsearch:9200 --username elastic --password changeme --index-pattern "app-*"
+docker run --rm -it nwclasantha/ai-eagle elasticsearch --cloud-id my-deployment:dXMtY2... --api-key base64key
+docker run --rm -it nwclasantha/ai-eagle elasticsearch --nodes http://elasticsearch:9200 --since-timestamp "2024-01-01T00:00:00Z"
 
 # ── Postman ──
-docker run --rm -it -e POSTMAN_TOKEN=PMAK-... ai-eagle postman --workspace-id abc123
-docker run --rm -it -e POSTMAN_TOKEN=PMAK-... ai-eagle postman --collection-id col-123 --collection-id col-456
+docker run --rm -e POSTMAN_TOKEN=PMAK-... nwclasantha/ai-eagle postman --workspace-id abc123
+docker run --rm -e POSTMAN_TOKEN=PMAK-... nwclasantha/ai-eagle postman --collection-id col-123 --collection-id col-456
 
 # ── Jenkins ──
-docker run --rm -it ai-eagle jenkins --url http://jenkins:8080 --username admin --password admin123
-docker run --rm -it ai-eagle jenkins --url https://jenkins.internal:8443 --username admin --password admin123 --insecure-skip-verify-tls
+docker run --rm -it nwclasantha/ai-eagle jenkins --url http://jenkins:8080 --username admin --password admin123
+docker run --rm -it nwclasantha/ai-eagle jenkins --url https://jenkins.internal:8443 --username admin --password admin123 --insecure-skip-verify-tls
 
 # ── HuggingFace ──
-docker run --rm -it -e HUGGINGFACE_TOKEN=hf_... ai-eagle huggingface --model username/model-name
-docker run --rm -it -e HUGGINGFACE_TOKEN=hf_... ai-eagle huggingface --org my-org
-docker run --rm -it -e HUGGINGFACE_TOKEN=hf_... ai-eagle huggingface --dataset username/dataset-name
-docker run --rm -it -e HUGGINGFACE_TOKEN=hf_... ai-eagle huggingface --user someone --skip-all-models --include-discussions --include-prs
+docker run --rm -e HUGGINGFACE_TOKEN=hf_... nwclasantha/ai-eagle huggingface --model username/model-name
+docker run --rm -e HUGGINGFACE_TOKEN=hf_... nwclasantha/ai-eagle huggingface --org my-org
+docker run --rm -e HUGGINGFACE_TOKEN=hf_... nwclasantha/ai-eagle huggingface --dataset username/dataset-name
+docker run --rm -e HUGGINGFACE_TOKEN=hf_... nwclasantha/ai-eagle huggingface --user someone --skip-all-models --include-discussions --include-prs
 
 # ── CircleCI ──
-docker run --rm -it -e CIRCLECI_TOKEN=... ai-eagle circleci --token $CIRCLECI_TOKEN
+docker run --rm -e CIRCLECI_TOKEN=... nwclasantha/ai-eagle circleci --token $CIRCLECI_TOKEN
 
 # ── TravisCI ──
-docker run --rm -it -e TRAVIS_TOKEN=... ai-eagle travisci --token $TRAVIS_TOKEN
+docker run --rm -e TRAVIS_TOKEN=... nwclasantha/ai-eagle travisci --token $TRAVIS_TOKEN
 
 # ── Syslog (Real-Time) ──
-docker run --rm -it -p 5140:5140/udp ai-eagle syslog --address 0.0.0.0:5140 --protocol udp --format rfc5424
-docker run --rm -it -p 6514:6514/tcp ai-eagle syslog --address 0.0.0.0:6514 --protocol tcp --format rfc5424
+docker run --rm -p 5140:5140/udp nwclasantha/ai-eagle syslog --address 0.0.0.0:5140 --protocol udp --format rfc5424
+docker run --rm -p 6514:6514/tcp nwclasantha/ai-eagle syslog --address 0.0.0.0:6514 --protocol tcp --format rfc5424
 
 # ── Stdin (Pipe Data) ──
-echo "sk_live_4eC39HqLyjWDarjtT1zdp7dc" | docker run --rm -i ai-eagle stdin
-cat config.env | docker run --rm -i ai-eagle stdin --json
-git diff HEAD~5 | docker run --rm -i ai-eagle stdin --json --fail
+echo "sk_live_4eC39HqLyjWDarjtT1zdp7dc" | docker run --rm -i nwclasantha/ai-eagle stdin
+cat config.env | docker run --rm -i nwclasantha/ai-eagle stdin --json
+git diff HEAD~5 | docker run --rm -i nwclasantha/ai-eagle stdin --json --fail
 
 # ── Multi-Scan (Config File) ──
-docker run --rm -v $(pwd)/scan-config.yaml:/config.yaml ai-eagle multi-scan --config /config.yaml
+docker run --rm -it -v "$(pwd)/scan-config.yaml:/config.yaml" nwclasantha/ai-eagle multi-scan --config /config.yaml
 
 # ── Analyze API Key Permissions ──
-docker run --rm -it ai-eagle analyze --key-type github --key key=ghp_YOUR_TOKEN
-docker run --rm -it ai-eagle analyze --key-type stripe --key key=sk_live_YOUR_KEY
-docker run --rm -it ai-eagle analyze --key-type twilio --key sid=AC123 --key key=auth_token
+docker run --rm -it nwclasantha/ai-eagle analyze --key-type github --key key=ghp_YOUR_TOKEN
+docker run --rm -it nwclasantha/ai-eagle analyze --key-type stripe --key key=sk_live_YOUR_KEY
+docker run --rm -it nwclasantha/ai-eagle analyze --key-type twilio --key sid=AC123 --key key=auth_token
 ```
 
 ---
