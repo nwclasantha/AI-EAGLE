@@ -741,7 +741,7 @@ docker run --rm -it -v "$(pwd)/reports:/reports" \
   nwclasantha/ai-eagle docker --image registry.example.com/app:latest --token YOUR_TOKEN \
   --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
-docker run --rm -it --user root -v //var/run/docker.sock://var/run/docker.sock -v "C:/Users/nwcla/Desktop/reports:/reports" nwclasantha/ai-eagle:latest docker --image nwclasantha/ai-eagle-test-secrets:latest --concurrency 30 --allow-verification-overlap --html-report /reports/test-secrets-report.html --excel-report /reports/test-secrets-findings.xlsx
+docker run --rm -it --user root -v //var/run/docker.sock://var/run/docker.sock -v "C:/Users/nwcla/Desktop/reports:/reports" nwclasantha/ai-eagle:latest docker --image nwclasantha/ai-eagle-test-secrets:latest --concurrency 30 --html-report /reports/test-secrets-report.html --excel-report /reports/test-secrets-findings.xlsx
 
 # ── Elasticsearch ──
 docker run --rm --network host -v "$(pwd)/reports:/reports" \
