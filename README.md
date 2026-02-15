@@ -578,169 +578,298 @@ docker run --rm ai-eagle --help
 
 ---
 
-## Quick Start
-
-<img width="1886" height="187" alt="image" src="https://github.com/user-attachments/assets/cea9efff-8577-4e60-9e2c-a9e22cbe46c7" />
-
-```bash
-# Scan a Git repository
-ai-eagle git --repo https://github.com/example/test-keys.git
-
-# Scan local files
-ai-eagle filesystem --directory /path/to/code
-
-# Scan from stdin
-echo "AKIA_FAKE_EXAMPLE_00" | ai-eagle stdin
-
-# Output as JSON
-ai-eagle git --repo https://github.com/example/repo.git --json
-
-# Generate enterprise HTML report
-ai-eagle filesystem --directory ./code --html-report report.html
-```
-
----
-
-## Docker Usage
-
-> **Docker Hub:** [`nwclasantha/ai-eagle`](https://hub.docker.com/r/nwclasantha/ai-eagle)
->
-> ```bash
-> docker pull nwclasantha/ai-eagle:latest    # or :3.0.0
-> ```
-
-### How Volume Mounts Work (Scanning Local Folders)
-
-Docker containers can't see your local files by default. Use `-v` to mount a folder:
-
-```
--v <YOUR_LOCAL_PATH>:/scan
-```
-
-This maps your local folder into `/scan` inside the container. Then scan `/scan`:
-
-```bash
-# Windows (CMD)
-docker run --rm -it -v %cd%:/scan nwclasantha/ai-eagle filesystem /scan
-
-# Windows (PowerShell)
-docker run --rm -it -v ${PWD}:/scan nwclasantha/ai-eagle filesystem /scan
-
-# Linux / macOS
-docker run --rm -it -v $(pwd):/scan nwclasantha/ai-eagle filesystem /scan
-
-# Specific folder
-docker run --rm -it -v C:/Users/you/Desktop/project:/scan nwclasantha/ai-eagle filesystem /scan
-```
-
----
-
 ### All Docker Run Commands
 
 ```bash
 # ── Git Repository ──
-docker run --rm -it nwclasantha/ai-eagle git https://github.com/org/repo.git
-docker run --rm -it nwclasantha/ai-eagle git https://github.com/org/repo.git --json --branch main
-docker run --rm -it nwclasantha/ai-eagle git https://github.com/org/repo.git --json --results verified --fail
-docker run --rm -it nwclasantha/ai-eagle git https://github.com/org/repo.git --max-depth 100 --exclude-globs "*.min.js,vendor/*"
-docker run --rm -it nwclasantha/ai-eagle git https://github.com/org/repo.git --sarif
-docker run --rm -it -v "$(pwd)/reports:/reports" nwclasantha/ai-eagle git https://github.com/org/repo.git --html-report /reports/scan.html
+docker run --rm -it -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle git https://github.com/org/repo.git \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -it -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle git https://github.com/org/repo.git \
+  --branch main --json --concurrency 20 \
+  --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -it -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle git https://github.com/org/repo.git \
+  --max-depth 100 --exclude-globs "*.min.js,vendor/*" --concurrency 20 \
+  --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -it -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle git https://github.com/org/repo.git \
+  --results verified --fail --concurrency 20 \
+  --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -it -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle git https://github.com/org/repo.git \
+  --sarif --concurrency 20 \
+  --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
 # ── GitHub Organization/Repos ──
-docker run --rm -e GITHUB_TOKEN=ghp_YOUR_TOKEN nwclasantha/ai-eagle github --org my-org
-docker run --rm -e GITHUB_TOKEN=ghp_YOUR_TOKEN nwclasantha/ai-eagle github --repo my-org/repo --json
-docker run --rm -e GITHUB_TOKEN=ghp_YOUR_TOKEN nwclasantha/ai-eagle github --org my-org --include-forks --include-wikis --issue-comments --pr-comments
-docker run --rm -e GITHUB_TOKEN=ghp_YOUR_TOKEN nwclasantha/ai-eagle github --org my-org --include-repos "backend-*" --exclude-repos "archived-*"
-docker run --rm -e GITHUB_TOKEN=ghp_YOUR_TOKEN nwclasantha/ai-eagle github --org my-org --endpoint https://github.mycompany.com/api/v3
+docker run --rm -e GITHUB_TOKEN=ghp_YOUR_TOKEN -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle github --org my-org \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -e GITHUB_TOKEN=ghp_YOUR_TOKEN -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle github --repo my-org/repo --json \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -e GITHUB_TOKEN=ghp_YOUR_TOKEN -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle github --org my-org \
+  --include-forks --include-wikis --issue-comments --pr-comments --comments-timeframe 365 \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -e GITHUB_TOKEN=ghp_YOUR_TOKEN -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle github --org my-org \
+  --include-repos "backend-*" --exclude-repos "archived-*" --ignore-gists \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -e GITHUB_TOKEN=ghp_YOUR_TOKEN -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle github --org my-org \
+  --endpoint https://github.mycompany.com/api/v3 \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
 # ── GitHub Experimental (Object Discovery) ──
-docker run --rm -e GITHUB_TOKEN=ghp_YOUR_TOKEN nwclasantha/ai-eagle github-experimental --repo https://github.com/org/repo --token ghp_YOUR_TOKEN --object-discovery
+docker run --rm -e GITHUB_TOKEN=ghp_YOUR_TOKEN -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle github-experimental \
+  --repo https://github.com/org/repo --token ghp_YOUR_TOKEN \
+  --object-discovery --collision-threshold 1 \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
 # ── GitLab Group/Repos ──
-docker run --rm -e GITLAB_TOKEN=glpat-YOUR_TOKEN nwclasantha/ai-eagle gitlab --group-id 12345
-docker run --rm -e GITLAB_TOKEN=glpat-YOUR_TOKEN nwclasantha/ai-eagle gitlab --repo https://gitlab.com/org/repo --token glpat-YOUR_TOKEN
-docker run --rm -e GITLAB_TOKEN=glpat-YOUR_TOKEN nwclasantha/ai-eagle gitlab --group-id 42 --endpoint https://gitlab.mycompany.com
+docker run --rm -e GITLAB_TOKEN=glpat-YOUR_TOKEN -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle gitlab --group-id 12345 \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -e GITLAB_TOKEN=glpat-YOUR_TOKEN -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle gitlab --repo https://gitlab.com/org/repo --token glpat-YOUR_TOKEN \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -e GITLAB_TOKEN=glpat-YOUR_TOKEN -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle gitlab --group-id 42 --endpoint https://gitlab.mycompany.com \
+  --include-repos "prod-*" --exclude-repos "test-*" \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
 # ── Filesystem ──
 # Linux / macOS
-docker run --rm -it -v /path/to/code:/scan nwclasantha/ai-eagle filesystem /scan
-docker run --rm -it -v /path/to/code:/scan nwclasantha/ai-eagle filesystem /scan --json --fail
-docker run --rm -it -v /path/to/code:/scan nwclasantha/ai-eagle filesystem /scan --no-default-excludes
+docker run --rm -it -v /path/to/code:/scan -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle filesystem /scan \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
-docker run --rm -it -v "C:/Users/nwcla/Desktop/SOC-Defense-System:/scan" -v "C:/Users/nwcla/Desktop/reports:/reports" nwclasantha/ai-eagle filesystem /scan --html-report /reports/soc-defense-report.html --excel-report /reports/soc-defense-findings.xlsx
+docker run --rm -it -v /path/to/code:/scan -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle filesystem /scan --json --fail \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -it -v /path/to/code:/scan -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle filesystem /scan --no-default-excludes \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -it -v /path/to/code:/scan -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle filesystem /scan \
+  --exclude-pattern '\.venv' --exclude-pattern 'node_modules' \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
 # Windows (PowerShell / CMD)
-docker run --rm -it -v "C:/Users/you/Desktop/project:/scan" -v "C:/Users/you/Desktop/reports:/reports" nwclasantha/ai-eagle filesystem /scan --html-report /reports/report.html --excel-report /reports/findings.xlsx
+docker run --rm -it -v "C:/Users/you/Desktop/project:/scan" -v "C:/Users/you/Desktop/reports:/reports" \
+  nwclasantha/ai-eagle filesystem /scan \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
 # Windows (Git Bash) — use // prefix for container paths
-docker run --rm -it -v "C:/Users/you/Desktop/project:/scan" -v "C:/Users/you/Desktop/reports://reports" nwclasantha/ai-eagle filesystem //scan --html-report //reports/report.html --excel-report //reports/findings.xlsx
+docker run --rm -it -v "C:/Users/you/Desktop/project:/scan" -v "C:/Users/you/Desktop/reports://reports" \
+  nwclasantha/ai-eagle filesystem //scan \
+  --concurrency 20 --html-report //reports/report.html --excel-report //reports/findings.xlsx
 
 # ── Amazon S3 ──
-docker run --rm -e AWS_ACCESS_KEY_ID=AKIA... -e AWS_SECRET_ACCESS_KEY=... nwclasantha/ai-eagle s3 --bucket my-bucket
-docker run --rm -e AWS_ACCESS_KEY_ID=AKIA... -e AWS_SECRET_ACCESS_KEY=... nwclasantha/ai-eagle s3 --bucket prod-configs --bucket staging-configs --ignore-bucket logs-bucket
-docker run --rm -e AWS_ACCESS_KEY_ID=AKIA... -e AWS_SECRET_ACCESS_KEY=... -e AWS_SESSION_TOKEN=... nwclasantha/ai-eagle s3 --bucket my-bucket --max-object-size 50MB
+docker run --rm -e AWS_ACCESS_KEY_ID=AKIA... -e AWS_SECRET_ACCESS_KEY=... \
+  -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle s3 --bucket my-bucket \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -e AWS_ACCESS_KEY_ID=AKIA... -e AWS_SECRET_ACCESS_KEY=... \
+  -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle s3 --bucket prod-configs --bucket staging-configs --ignore-bucket logs-bucket \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -e AWS_ACCESS_KEY_ID=AKIA... -e AWS_SECRET_ACCESS_KEY=... -e AWS_SESSION_TOKEN=... \
+  -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle s3 --bucket my-bucket --max-object-size 50MB \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -e AWS_ACCESS_KEY_ID=AKIA... -e AWS_SECRET_ACCESS_KEY=... \
+  -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle s3 --role-arn arn:aws:iam::123456789:role/ScanRole --bucket my-bucket --cloud-environment \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
 # ── Google Cloud Storage ──
-docker run --rm -it -v /path/to/sa.json:/creds/sa.json -e GOOGLE_APPLICATION_CREDENTIALS=/creds/sa.json nwclasantha/ai-eagle gcs --project-id my-project --include-buckets my-bucket
-docker run --rm -e GOOGLE_API_KEY=AIza... nwclasantha/ai-eagle gcs --project-id my-project --include-buckets my-bucket
-docker run --rm -it nwclasantha/ai-eagle gcs --project-id my-project --without-auth --include-buckets public-bucket
+docker run --rm -it -v /path/to/sa.json:/creds/sa.json \
+  -e GOOGLE_APPLICATION_CREDENTIALS=/creds/sa.json -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle gcs --project-id my-project --include-buckets my-bucket \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -e GOOGLE_API_KEY=AIza... -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle gcs --project-id my-project --include-buckets my-bucket \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -it -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle gcs --project-id my-project --without-auth --include-buckets public-bucket \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -it -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle gcs --project-id my-project --cloud-environment \
+  --include-buckets my-bucket --exclude-objects "*.tar.gz" --max-object-size 10MB \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
 # ── Docker Image Layers ──
 # Linux / macOS
-docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock nwclasantha/ai-eagle docker --image my-app:latest
-docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock nwclasantha/ai-eagle docker --image my-app:latest --image my-api:v2
+docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle docker --image my-app:latest \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle docker --image my-app:latest --image my-api:v2 --force-skip-binaries \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
 # Windows (Docker Desktop) — requires --user root for socket access
-docker run --rm --user root -v //var/run/docker.sock://var/run/docker.sock nwclasantha/ai-eagle docker --image my-app:latest
-
-# With reports (Windows Git Bash)
-docker run --rm --user root -v //var/run/docker.sock://var/run/docker.sock -v "C:/Users/you/Desktop/reports://reports" nwclasantha/ai-eagle docker --image my-app:latest --html-report //reports/docker-report.html --excel-report //reports/docker-findings.xlsx
+docker run --rm --user root -v //var/run/docker.sock://var/run/docker.sock \
+  -v "C:/Users/you/Desktop/reports://reports" \
+  nwclasantha/ai-eagle docker --image my-app:latest \
+  --concurrency 20 --html-report //reports/report.html --excel-report //reports/findings.xlsx
 
 # Remote registry (no socket needed)
-docker run --rm -it nwclasantha/ai-eagle docker --image registry.example.com/app:latest --token YOUR_TOKEN
+docker run --rm -it -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle docker --image registry.example.com/app:latest --token YOUR_TOKEN \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -it -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle docker --image registry.example.com/app:latest \
+  --registry-token YOUR_REGISTRY_TOKEN --namespace my-namespace --exclude-paths "/usr/lib,/var/cache" \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
 # ── Elasticsearch ──
-docker run --rm --network host nwclasantha/ai-eagle elasticsearch --nodes http://localhost:9200 --index-pattern "logs-*"
-docker run --rm -it nwclasantha/ai-eagle elasticsearch --nodes http://elasticsearch:9200 --username elastic --password changeme --index-pattern "app-*"
-docker run --rm -it nwclasantha/ai-eagle elasticsearch --cloud-id my-deployment:dXMtY2... --api-key base64key
-docker run --rm -it nwclasantha/ai-eagle elasticsearch --nodes http://elasticsearch:9200 --since-timestamp "2024-01-01T00:00:00Z"
+docker run --rm --network host -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle elasticsearch --nodes http://localhost:9200 --index-pattern "logs-*" \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -it -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle elasticsearch \
+  --nodes http://elasticsearch:9200 --username elastic --password changeme --index-pattern "app-*" \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -it -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle elasticsearch --cloud-id my-deployment:dXMtY2... --api-key base64key \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -it -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle elasticsearch \
+  --nodes http://elasticsearch:9200 --service-token YOUR_TOKEN --since-timestamp "2024-01-01T00:00:00Z" \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -it -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle elasticsearch \
+  --nodes http://elasticsearch:9200 --username elastic --password changeme \
+  --index-pattern "app-*" --query-json '{"range":{"@timestamp":{"gte":"now-7d"}}}' --best-effort-scan \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
 # ── Postman ──
-docker run --rm -e POSTMAN_TOKEN=PMAK-... nwclasantha/ai-eagle postman --workspace-id abc123
-docker run --rm -e POSTMAN_TOKEN=PMAK-... nwclasantha/ai-eagle postman --collection-id col-123 --collection-id col-456
+docker run --rm -e POSTMAN_TOKEN=PMAK-... -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle postman --workspace-id abc123 \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -e POSTMAN_TOKEN=PMAK-... -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle postman --collection-id col-123 --collection-id col-456 --exclude-environments dev \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
 # ── Jenkins ──
-docker run --rm -it nwclasantha/ai-eagle jenkins --url http://jenkins:8080 --username admin --password admin123
-docker run --rm -it nwclasantha/ai-eagle jenkins --url https://jenkins.internal:8443 --username admin --password admin123 --insecure-skip-verify-tls
+docker run --rm -it -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle jenkins --url http://jenkins:8080 --username admin --password admin123 \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -it -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle jenkins --url https://jenkins.internal:8443 \
+  --username admin --password admin123 --insecure-skip-verify-tls \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -it -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle jenkins --url http://jenkins:8080 \
+  --header-key Authorization --header-value "Bearer token-xxxxx" \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
 # ── HuggingFace ──
-docker run --rm -e HUGGINGFACE_TOKEN=hf_... nwclasantha/ai-eagle huggingface --model username/model-name
-docker run --rm -e HUGGINGFACE_TOKEN=hf_... nwclasantha/ai-eagle huggingface --org my-org
-docker run --rm -e HUGGINGFACE_TOKEN=hf_... nwclasantha/ai-eagle huggingface --dataset username/dataset-name
-docker run --rm -e HUGGINGFACE_TOKEN=hf_... nwclasantha/ai-eagle huggingface --user someone --skip-all-models --include-discussions --include-prs
+docker run --rm -e HUGGINGFACE_TOKEN=hf_... -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle huggingface --model username/model-name \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -e HUGGINGFACE_TOKEN=hf_... -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle huggingface --org my-org \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -e HUGGINGFACE_TOKEN=hf_... -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle huggingface --dataset username/dataset-name \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -e HUGGINGFACE_TOKEN=hf_... -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle huggingface --user someone --skip-all-models --include-discussions --include-prs \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -e HUGGINGFACE_TOKEN=hf_... -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle huggingface --org my-org \
+  --ignore-models "my-org/test-*" --ignore-spaces "my-org/demo-*" --skip-all-datasets \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
 # ── CircleCI ──
-docker run --rm -e CIRCLECI_TOKEN=... nwclasantha/ai-eagle circleci --token $CIRCLECI_TOKEN
+docker run --rm -e CIRCLECI_TOKEN=... -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle circleci --token $CIRCLECI_TOKEN \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
 # ── TravisCI ──
-docker run --rm -e TRAVIS_TOKEN=... nwclasantha/ai-eagle travisci --token $TRAVIS_TOKEN
+docker run --rm -e TRAVIS_TOKEN=... -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle travisci --token $TRAVIS_TOKEN \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
 # ── Syslog (Real-Time) ──
-docker run --rm -p 5140:5140/udp nwclasantha/ai-eagle syslog --address 0.0.0.0:5140 --protocol udp --format rfc5424
-docker run --rm -p 6514:6514/tcp nwclasantha/ai-eagle syslog --address 0.0.0.0:6514 --protocol tcp --format rfc5424
+docker run --rm -p 5140:5140/udp -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle syslog --address 0.0.0.0:5140 --protocol udp --format rfc5424 \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -p 6514:6514/tcp -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle syslog --address 0.0.0.0:6514 --protocol tcp --format rfc5424 \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker run --rm -p 6514:6514/tcp -v /path/to/certs:/certs:ro -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle syslog --address 0.0.0.0:6514 --protocol tcp --format rfc5424 \
+  --cert /certs/server.crt --key /certs/server.key \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
 # ── Stdin (Pipe Data) ──
-echo "sk_live_4eC39HqLyjWDarjtT1zdp7dc" | docker run --rm -i nwclasantha/ai-eagle stdin
-cat config.env | docker run --rm -i nwclasantha/ai-eagle stdin --json
-git diff HEAD~5 | docker run --rm -i nwclasantha/ai-eagle stdin --json --fail
+echo "sk_live_4eC39HqLyjWDarjtT1zdp7dc" | docker run --rm -i \
+  -v "$(pwd)/reports:/reports" nwclasantha/ai-eagle stdin \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+cat config.env | docker run --rm -i \
+  -v "$(pwd)/reports:/reports" nwclasantha/ai-eagle stdin --json \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+git diff HEAD~5 | docker run --rm -i \
+  -v "$(pwd)/reports:/reports" nwclasantha/ai-eagle stdin --json --fail \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
+
+docker logs my-container | docker run --rm -i \
+  -v "$(pwd)/reports:/reports" nwclasantha/ai-eagle stdin \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
 # ── Multi-Scan (Config File) ──
-docker run --rm -it -v "$(pwd)/scan-config.yaml:/config.yaml" nwclasantha/ai-eagle multi-scan --config /config.yaml
+docker run --rm -it -v "$(pwd)/scan-config.yaml:/config.yaml" -v "$(pwd)/reports:/reports" \
+  nwclasantha/ai-eagle multi-scan --config /config.yaml \
+  --concurrency 20 --html-report /reports/report.html --excel-report /reports/findings.xlsx
 
-# ── Analyze API Key Permissions ──
+# ── Analyze API Key Permissions (no scan — no reports needed) ──
 docker run --rm -it nwclasantha/ai-eagle analyze --key-type github --key key=ghp_YOUR_TOKEN
 docker run --rm -it nwclasantha/ai-eagle analyze --key-type stripe --key key=sk_live_YOUR_KEY
 docker run --rm -it nwclasantha/ai-eagle analyze --key-type twilio --key sid=AC123 --key key=auth_token
+docker run --rm -it nwclasantha/ai-eagle analyze --key-type shopify --key key=shppa_xxxxx --key url=mystore.myshopify.com
+docker run --rm -it nwclasantha/ai-eagle analyze --key-type jira --key domain=company.atlassian.net --key email=user@example.com --key token=xxxxx
+docker run --rm -it nwclasantha/ai-eagle analyze --key-type databricks --key domain=my-workspace.databricks.com --key token=dapi_xxxxx
 ```
 
 ---
