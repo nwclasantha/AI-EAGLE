@@ -680,6 +680,8 @@ docker run --rm -it -v "C:/Users/you/Desktop/project:/scan" -v "C:/Users/you/Des
   nwclasantha/ai-eagle filesystem //scan \
   --concurrency 20 --html-report //reports/report.html --excel-report //reports/findings.xlsx
 
+docker run --rm -it --user root -v "C:/Users/nwcla/Desktop/SOC-Defense-System:/scan-target" -v "C:/Users/Desktop/reports:/reports" nwclasantha/ai-eagle:latest filesystem /scan-target --concurrency 30 --html-report /reports/soc-defense-report.html --excel-report /reports/soc-defense-findings.xlsx
+
 # ── Amazon S3 ──
 docker run --rm -e AWS_ACCESS_KEY_ID=AKIA... -e AWS_SECRET_ACCESS_KEY=... \
   -v "$(pwd)/reports:/reports" \
