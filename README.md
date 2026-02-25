@@ -331,7 +331,15 @@ Key methods:
 
 <img width="1323" height="710" alt="image" src="https://github.com/user-attachments/assets/34df1897-4145-4e5f-b05e-c3e839f64c4c" />
 
+<img width="1535" height="708" alt="image" src="https://github.com/user-attachments/assets/ffb659e0-6c5a-45a9-9076-d881992313b8" />
+
+<img width="1530" height="617" alt="image" src="https://github.com/user-attachments/assets/c261dcf0-e585-4906-9ade-9977a826e38d" />
+
+<img width="1537" height="736" alt="image" src="https://github.com/user-attachments/assets/5f7240fc-4381-4cf0-9db4-f6da8375e23a" />
+
 ```
+<img width="1530" height="787" alt="image" src="https://github.com/user-attachments/assets/92fa8577-8dda-4d2a-aaac-180b7e3bb59d" />
+
 Source Scan Request (CLI command)
         │
         v
